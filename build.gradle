@@ -1,0 +1,162 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.github.ben-manes.versions' version '0.51.0'
+}
+
+group 'com.trafficGenerator-Receiver'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+javafx {
+    version = "23.0.1"
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.graphics']
+}
+
+javadoc {
+    destinationDir = file("$buildDir/../doc")
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    implementation 'org.openjfx:javafx-base:23.0.1'
+    implementation 'org.openjfx:javafx-controls:23.0.1'
+    implementation 'org.openjfx:javafx-graphics:23.0.1'
+    implementation 'org.openjfx:javafx-fxml:23.0.1'
+
+    implementation 'org.apache.logging.log4j:log4j-api:2.24.2'
+    implementation 'org.apache.logging.log4j:log4j-core:2.24.2'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.24.2'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+
+    testImplementation 'org.testfx:testfx-junit5:4.0.18'
+    testImplementation 'org.testfx:testfx-core:4.0.18'
+
+    testImplementation 'org.openjfx:javafx-base:23.0.1'
+    testImplementation 'org.openjfx:javafx-controls:23.0.1'
+    testImplementation 'org.openjfx:javafx-graphics:23.0.1'
+    testImplementation 'org.openjfx:javafx-fxml:23.0.1'
+    testImplementation 'org.openjfx:javafx-swing:23.0.1'
+
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+}
+
+// Отключение основного JAR
+tasks.named('jar').configure {
+    enabled = false
+}
+
+// Отключение тестов
+tasks.test {
+    enabled = true
+}
+
+// Создание FAT JAR файла для GUI.GeneratorGUI
+task shadowGeneratorJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    archiveBaseName.set('fatTrafficGenerator')
+    archiveVersion.set('1.0-SNAPSHOT')
+    archiveClassifier.set('all')
+    manifest {
+        attributes 'Main-Class': 'GUI.GeneratorGUI'
+    }
+    from sourceSets.main.output
+    configurations = [project.configurations.runtimeClasspath]
+    mainClassName = 'GUI.GeneratorGUI'
+}
+
+// Создание FAT JAR файла для GUI.ReceiverGUI
+task shadowReceiverJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    archiveBaseName.set('fatTrafficReceiver')
+    archiveVersion.set('1.0-SNAPSHOT')
+    archiveClassifier.set('all')
+    manifest {
+        attributes 'Main-Class': 'GUI.ReceiverGUI'
+    }
+    from sourceSets.main.output
+    configurations = [project.configurations.runtimeClasspath]
+    mainClassName = 'GUI.ReceiverGUI'
+}
+
+task buildAll {
+    dependsOn shadowGeneratorJar, shadowReceiverJar
+}
+
+/*
+// VM options
+application {
+    applicationDefaultJvmArgs = [
+            '--module-path', 'D:\\Coding\\openjfx 23.0.1\\javafx sdk 23.0.1\\lib',
+            '--add-modules', 'javafx.controls, javafx.fxml'
+    ]
+}
+
+// Создание JAR для GeneratorGUI
+task generatorJar(type: Jar) {
+    archiveBaseName.set('GeneratorGUI')
+    from sourceSets.main.output
+    manifest {
+        attributes(
+                'Main-Class': 'GUI.GeneratorGUI'
+        )
+    }
+}
+
+// Создание JAR для ReceiverGUI
+task receiverJar(type: Jar) {
+    archiveBaseName.set('ReceiverGUI')
+    from sourceSets.main.output
+    manifest {
+        attributes(
+                'Main-Class': 'GUI.ReceiverGUI'
+        )
+    }
+}
+
+// Запуск GeneratorGUI с VM options
+task runGenerator(type: JavaExec) {
+    mainClass = 'GUI.GeneratorGUI'
+    classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = [
+            '--module-path', 'D:\\Coding\\openjfx 23.0.1\\javafx sdk 23.0.1\\lib',
+            '--add-modules', 'javafx.controls, javafx.fxml, javafx.graphics'
+    ]
+    systemProperty 'log4j.configurationFile', 'src/log4j/log4j2.xml'
+}
+
+// Запуск ReceiverGUI с VM options
+task runReceiver(type: JavaExec) {
+    mainClass = 'GUI.ReceiverGUI'
+    classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = [
+            '--module-path', 'D:/Coding/openjfx 23.0.1/javafx sdk 23.0.1/lib',
+            '--add-modules', 'javafx.controls, javafx.fxml, javafx.graphics'
+    ]
+    systemProperty 'log4j.configurationFile', 'src/log4j/log4j2.xml'
+}
+
+implementation 'org.apiguardian:apiguardian-api:1.1.2'
+*/
